@@ -1,0 +1,3 @@
+module Multinomials
+
+end
