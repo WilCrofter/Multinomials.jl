@@ -4,7 +4,7 @@ Data structures for exponents and polynomials. Orderings. Arithmetic operations.
 
 =#
 
-import Base.+
+import Base.+, Base.*
 
 type Monomial
     exponent::Array{Int,1}
@@ -39,6 +39,8 @@ function collect_terms!(A::Multinomial)
             A[mt] = A[i]
             current = mt
             mt += 1
+        else
+            current = i
         end
     end
     return current
@@ -47,6 +49,24 @@ end
 function +(A::Multinomial, B::Multinomial)
     C = vcat(A,B)
     n = collect_terms!(C)
+    return C[1:n]
+end
+
+function *(A::Multinomial, B::Multinomial)
+    na = length(A)
+    nb = length(B)
+    C = Array(Monomial, na*nb)
+    for i in 1:na
+        Ae = A[i].exponent
+        Ac = A[i].coefficient
+        offset = (i-1)*nb
+        for j in 1:nb
+            C[j+offset] = Monomial(Ae+B[j].exponent, Ac*B[j].coefficient)
+        end
+    end
+    println(C)
+    n = collect_terms!(C)
+    println(n)
     return C[1:n]
 end
     
