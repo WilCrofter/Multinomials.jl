@@ -64,10 +64,23 @@ function *(A::Multinomial, B::Multinomial)
             C[j+offset] = Monomial(Ae+B[j].exponent, Ac*B[j].coefficient)
         end
     end
-    println(C)
     n = collect_terms!(C)
-    println(n)
     return C[1:n]
+end
+
+function deMo()
+    # A has an int and a real coefficient
+    A = Multinomial([Monomial([0,0],1), Monomial([1,2],3.4)])
+    # B has an int and an imaginary coefficient
+    B = Multinomial([Monomial([0,0],1), Monomial([2,1],6im)])
+    # Both A and B have constant terms with coefficient 1
+    @show A
+    @show B
+    println()
+    @show A+B
+    println()
+    @show A*B
+    nothing
 end
     
             
