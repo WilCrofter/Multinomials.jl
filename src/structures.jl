@@ -15,26 +15,28 @@ function ltlex(a::Monomial, b::Monomial)
     return lexcmp(b.exponent,a.exponent) == 1
 end
 
+typealias Multinomial Array{Monomial,1}
+
 """ collect_terms(a)
 
-Collect terms of a sorted Monomial array in place, modifying a,
-and return the length of the valid entries.
+Collect terms Monomial array in place, modifying a, and return the length of the valid entries. Entries will be sorted in lexicographically increasing order.
 
 """
-function collect_terms!(a::Array{Monomial,1})
-    if length(a) <= 1 return a end
+function collect_terms!(A::Multinomial)
+    if length(A) <= 1 return A end
+    sort!(A,lt=ltlex)
     mt = 0
     current = 1
-    for i in 2:length(a)
-        if a[i].exponent == a[current].exponent
-            # If a[i] has the same exponent as a[current], add the coefficient
-            # of a[i] to that of a[current]
-            a[current].coefficient += a[i].coefficient
+    for i in 2:length(A)
+        if A[i].exponent == A[current].exponent
+            # If A[i] has the same exponent as a[current], add the coefficient
+            # of A[i] to that of A[current]. If mt=0 set mt=i.
+            A[current].coefficient += A[i].coefficient
             if mt == 0 mt = i end
         elseif mt > 0
-            # Else, if mt > 0, set a[mt] = a[i], set current = mt,
-            # and set mt = mt+1
-            a[mt] = a[i]
+            # Else, if mt > 0, set A[mt] = A[i], set current = mt,
+            # and set mt = mt+1. Note mt < i always.
+            A[mt] = A[i]
             current = mt
             mt += 1
         end
@@ -42,3 +44,10 @@ function collect_terms!(a::Array{Monomial,1})
     return current
 end
 
+function +(A::Multinomial, B::Multinomial)
+    C = vcat(A,B)
+    n = collect_terms!(C)
+    return C[1:n]
+end
+    
+            
