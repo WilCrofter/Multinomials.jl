@@ -4,7 +4,7 @@ Data structures for exponents and polynomials. Orderings. Arithmetic operations.
 
 =#
 
-import Base.+, Base.*
+import Base.+, Base.*, Base.-
 
 type Monomial
     exponent::Array{Int,1}
@@ -20,6 +20,8 @@ typealias Multinomial Array{Monomial,1}
 """ collect_terms(a)
 
 Collect terms Monomial array in place, modifying a, and return the length of the valid entries. Entries will be sorted in lexicographically increasing order.
+
+TODO: rid 0 terms
 
 """
 function collect_terms!(A::Multinomial)
@@ -67,6 +69,34 @@ function *(A::Multinomial, B::Multinomial)
     n = collect_terms!(C)
     return C[1:n]
 end
+
+# syntactic sugar
+
+function -(a::Monomial)  Monomial(a.exponent, -a.coefficient) end
+
+function -(A::Multinomial)
+    B = deepcopy(A)
+    for b in B
+        b.coefficient = -b.coefficient
+    end
+end
+
+function -(A::Multinomial, B::Multinomial)
+    C = vcat(deepcopy(A), -(B)) # -() deepcopies B
+    n = collect_terms(C)
+    return C[1:n]
+end
+
++(A::Monomial, B::Multinomial) = [A] + B
++(A::Multinomial, B::Monomial) = A + [B]
++(A::Monomial, B::Monomial)    = [A] + [B]
+-(A::Monomial, B::Multinomial) = [A] - B
+-(A::Multinomial, B::Monomial) = A + [B]
+-(A::Monomial, B::Monomial)    = [A] + [B]
+*(A::Monomial, B::Multinomial) = [A]*B
+*(A::Multinomial, B::Monomial) = A*[B]
+*(A::Monomial, B::Monomial)    = [A]*[B]
+
 
 function deMo()
     # A has an int and a real coefficient
