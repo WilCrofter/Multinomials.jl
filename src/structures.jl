@@ -21,8 +21,6 @@ typealias Multinomial Array{Monomial,1}
 
 Collect terms Monomial array in place, modifying a, and return the length of the valid entries. Entries will be sorted in lexicographically increasing order.
 
-TODO: rid 0 terms
-
 """
 function collect_terms!(A::Multinomial)
     if length(A) <= 1 return A end
@@ -45,8 +43,25 @@ function collect_terms!(A::Multinomial)
             current = i
         end
     end
-    return current
+    # eliminate 0 terms
+    mt = 0
+    n = 0
+    for i = 1:current
+        if isapprox(A[i].coefficient, 0)
+            if mt == 0
+                mt = i
+            end
+        elseif mt > 0
+            A[mt] = A[i]
+            n = mt
+            mt += 1
+        else
+            n = i
+        end
+    end
+    return n
 end
+
 
 function +(A::Multinomial, B::Multinomial)
     C = deepcopy(vcat(A,B))
@@ -79,11 +94,12 @@ function -(A::Multinomial)
     for b in B
         b.coefficient = -b.coefficient
     end
+    return B
 end
 
 function -(A::Multinomial, B::Multinomial)
     C = vcat(deepcopy(A), -(B)) # -() deepcopies B
-    n = collect_terms(C)
+    n = collect_terms!(C)
     return C[1:n]
 end
 
@@ -108,6 +124,9 @@ function deMo()
     @show B
     println()
     @show A+B
+    println()
+    # A-B has a 0 term which is eliminated during term collection 
+    @show A-B
     println()
     @show A*B
     nothing
