@@ -47,7 +47,7 @@ function collect_terms!(A::Multinomial)
 end
 
 function +(A::Multinomial, B::Multinomial)
-    C = vcat(A,B)
+    C = deepcopy(vcat(A,B))
     n = collect_terms!(C)
     return C[1:n]
 end
