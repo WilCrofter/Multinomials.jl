@@ -4,7 +4,7 @@ Data structures for exponents and polynomials. Orderings. Arithmetic operations.
 
 =#
 
-import Base.+, Base.*, Base.-
+import Base.+, Base.*, Base.-, Base.^
 
 type Monomial
     exponent::Array{Int,1}
@@ -113,6 +113,20 @@ end
 *(A::Multinomial, B::Monomial) = A*[B]
 *(A::Monomial, B::Monomial)    = [A]*[B]
 
++(x::Number, a::Monomial) = Monomial(zeros(Int,length(a.exponent)), x) + a
++(a::Monomial, x::Number) = x+a
++(x::Number, A::Multinomial) = Monomial(zeros(Int,length(A[1].exponent)), x)+A
++(A::Multinomial, x::Number) = x + A
+-(x::Number, a::Monomial) = (-a)+x
+-(a::Monomial, x::Number) = a+(-x)
+-(x::Number, A::Multinomial) = x + (-A)
+-(A::Multinomial, x::Number) = A + (-x)
+*(x::Number, a::Monomial) = Monomial(deepcopy(a.exponent), x*a.coefficient)
+*(a::Monomial, x::Number) = x*a
+*(x::Number, A::Multinomial) = [Monomial(deepcopy(a.exponent), x*a.coefficient) for a in A]
+*(A::Multinomial, x::Number) = x*A
+
+^(s::Symbol, xp::Array{Int,1}) = Monomial(xp,1)
 
 function deMo()
     # A has an int and a real coefficient
