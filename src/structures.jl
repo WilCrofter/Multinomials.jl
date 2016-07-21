@@ -59,7 +59,7 @@ function collect_terms!(A::Multinomial)
             n = i
         end
     end
-    return n
+    return max(1,n) # return at least 1 term, even if 0.
 end
 
 
@@ -130,12 +130,11 @@ end
 
 function deMo()
     # A has an int and a real coefficient
-    A = Multinomial([Monomial([0,0],1), Monomial([1,2],3.4)])
     # B has an int and an imaginary coefficient
-    B = Multinomial([Monomial([0,0],1), Monomial([2,1],6im)])
     # Both A and B have constant terms with coefficient 1
-    @show A
-    @show B
+    @show A = 1 + 3.4*:x^[1,2]
+    println()
+    @show B = 1 + 6im*:x^[2,1]
     println()
     @show A+B
     println()
