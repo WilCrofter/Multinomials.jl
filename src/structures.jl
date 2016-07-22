@@ -6,6 +6,12 @@ Data structures for exponents and polynomials. Orderings. Arithmetic operations.
 
 import Base.+, Base.*, Base.-, Base.^
 
+immutable Indeterminate
+    degree::Int
+    Indeterminate(degree::Int) = degree > 0 ? new(degree) :
+        error("Degree must be > 0")
+end
+
 type Monomial
     exponent::Array{Int,1}
     coefficient::Number
@@ -126,15 +132,17 @@ end
 *(x::Number, A::Multinomial) = [Monomial(deepcopy(a.exponent), x*a.coefficient) for a in A]
 *(A::Multinomial, x::Number) = x*A
 
-^(s::Symbol, xp::Array{Int,1}) = Monomial(xp,1)
+^(s::Indeterminate, xp::Array{Int,1}) = Monomial(xp,1)
 
 function deMo()
+    @show x = Indeterminate(2)
+    println()
     # A has an int and a real coefficient
     # B has an int and an imaginary coefficient
     # Both A and B have constant terms with coefficient 1
-    @show A = 1 + 3.4*:x^[1,2]
+    @show A = 1 + 3.4*x^[1,2]
     println()
-    @show B = 1 + 6im*:x^[2,1]
+    @show B = 1 + 6im*x^[2,1]
     println()
     @show A+B
     println()
