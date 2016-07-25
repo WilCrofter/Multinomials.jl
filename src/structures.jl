@@ -13,8 +13,27 @@ immutable Indeterminate
 end
 
 type Monomial
+    indeterminate::Indeterminate
     exponent::Array{Int,1}
     coefficient::Number
+
+    function Monomial(x::Indeterminate)
+        new(x, fill(1,x.degree), 1)
+    end
+
+    function Monomial(x::Indeterminate, c::Number)
+        new(x, fill(1, x.degree), c)
+    end
+
+    function Monomial(x::Indeterminate, ex::Array{Int,1})
+        Monomial(x, ex, 1)
+    end
+
+    function Monomial(x::Indeterminate, ex::Array{Int,1}, c::Number)
+        length(ex) == x.degree || error("Length of exponent, $ex, must match degree of indeterminate, $x.degree")
+        new(x,ex,c)
+    end
+    
 end
 
 function ltlex(a::Monomial, b::Monomial)
