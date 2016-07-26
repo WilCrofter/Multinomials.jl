@@ -2,9 +2,11 @@
 
 Data structures for exponents and polynomials. Orderings. Arithmetic operations. All experimental. 
 
+For the moment, lex order is assumed and almost enforced.
+
 =#
 
-import Base.+, Base.*, Base.-, Base.^
+import Base.+, Base.*, Base.-, Base.^, Base.repr
 
 immutable Indeterminate
     degree::Int
@@ -36,7 +38,14 @@ type Monomial
     
 end
 
+function repr(x::Monomial)
+    ex = x.exponent
+    c = x.coefficient
+    "$c*x^$ex"
+end
+
 function ltlex(a::Monomial, b::Monomial)
+    b.indeterminate == a.indeterminate || error("Monomials $a and $b have different indeterminates.")
     return lexcmp(b.exponent,a.exponent) == 1
 end
 
@@ -97,13 +106,15 @@ end
 function *(A::Multinomial, B::Multinomial)
     na = length(A)
     nb = length(B)
+    if na==0 || nb==0 return Array(Monomial,0) end
+    x = A[1].indeterminate
     C = Array(Monomial, na*nb)
     for i in 1:na
         Ae = A[i].exponent
         Ac = A[i].coefficient
         offset = (i-1)*nb
         for j in 1:nb
-            C[j+offset] = Monomial(Ae+B[j].exponent, Ac*B[j].coefficient)
+            C[j+offset] = Monomial(x, Ae+B[j].exponent, Ac*B[j].coefficient)
         end
     end
     n = collect_terms!(C)
@@ -112,7 +123,7 @@ end
 
 # syntactic sugar
 
-function -(a::Monomial)  Monomial(a.exponent, -a.coefficient) end
+function -(a::Monomial)  Monomial(a.indeterminate, a.exponent, -a.coefficient) end
 
 function -(A::Multinomial)
     B = deepcopy(A)
@@ -138,22 +149,27 @@ end
 *(A::Multinomial, B::Monomial) = A*[B]
 *(A::Monomial, B::Monomial)    = [A]*[B]
 
-+(x::Number, a::Monomial) = Monomial(zeros(Int,length(a.exponent)), x) + a
++(x::Number, a::Monomial) = Monomial(a.indeterminate,
+                                     zeros(Int,length(a.exponent)), x) + a
 +(a::Monomial, x::Number) = x+a
-+(x::Number, A::Multinomial) = Monomial(zeros(Int,length(A[1].exponent)), x)+A
++(x::Number, A::Multinomial) = Monomial(A[1].indeterminate,
+                                        zeros(Int,length(A[1].exponent)), x)+A
 +(A::Multinomial, x::Number) = x + A
 -(x::Number, a::Monomial) = (-a)+x
 -(a::Monomial, x::Number) = a+(-x)
 -(x::Number, A::Multinomial) = x + (-A)
 -(A::Multinomial, x::Number) = A + (-x)
-*(x::Number, a::Monomial) = Monomial(deepcopy(a.exponent), x*a.coefficient)
+*(x::Number, a::Monomial) = Monomial(a.indeterminate,
+                                     deepcopy(a.exponent), x*a.coefficient)
 *(a::Monomial, x::Number) = x*a
-*(x::Number, A::Multinomial) = [Monomial(deepcopy(a.exponent), x*a.coefficient) for a in A]
+*(x::Number, A::Multinomial) = [Monomial(a.indeterminate,
+                                         deepcopy(a.exponent),
+                                         x*a.coefficient) for a in A]
 *(A::Multinomial, x::Number) = x*A
 
-^(s::Indeterminate, xp::Array{Int,1}) = Monomial(xp,1)
+^(s::Indeterminate, xp::Array{Int,1}) = Monomial(s,xp,1)
 
-function deMo()
+function demo_arithmetic()
     @show x = Indeterminate(2)
     println()
     # A has an int and a real coefficient
@@ -173,3 +189,9 @@ function deMo()
 end
     
             
+function S_poly(A::Multinomial, B::Multinomial)
+    x = A[end].indeterminate
+    tmp = [max(A[end].exponent[i], B[end].exponent[i]) for i in 1:x.degree]
+    return B[end].coefficient*x^(tmp-A[end].exponent)*A -
+        A[end].coefficient*x^(tmp-B[end].exponent)*B
+end

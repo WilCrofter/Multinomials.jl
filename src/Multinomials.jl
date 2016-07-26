@@ -1,6 +1,6 @@
 module Multinomials
 
-export +, *, -, ^
+export +, *, -, ^, repr
 
 include("sandbox.jl")    
 include("structures.jl")
