@@ -187,11 +187,3 @@ function demo_arithmetic()
     @show A*B
     nothing
 end
-    
-            
-function S_poly(A::Multinomial, B::Multinomial)
-    x = A[end].indeterminate
-    tmp = [max(A[end].exponent[i], B[end].exponent[i]) for i in 1:x.degree]
-    return B[end].coefficient*x^(tmp-A[end].exponent)*A -
-        A[end].coefficient*x^(tmp-B[end].exponent)*B
-end
