@@ -1,9 +1,8 @@
 module Multinomials
 
-export +, *, -, ^, repr
+export +, *, -, ^
 
 include("structures.jl")
 include("algorithms.jl")    
-
 
 end
