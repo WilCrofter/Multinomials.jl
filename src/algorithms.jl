@@ -51,7 +51,31 @@ For any pair of polynomials f1 , f2 in G:
 
 Note that G never shrinks. In the worst case it can become intractably large. Moreover, the final G may contain many redundant multinomials. Neither of these problems aare faced here.
 """
-function buchberger(F::Array{Multinomial,1})
+function buchberger(F::Array{Multinomial,1}; increment=1000, maxiterations=1000)
+    ## Initialization ##
+    # Expandable storage for Groebner basis
+    nG = max(length(F), increment)
+    iG = length(F)
+    G = Array(Multinomial, nG)
+    # Initialize G = F
+    for i in 1:iG G[i] = deepcopy(F[i]) end
+    # Random permutation for choosing pairs
+    nP = binomial(iG,2)
+    P = randperm(nP)
+    iP = 1
+    # Expandable storage for (hashes of) discarded pairs
+    nD = max(binomia(length(F),2), increment)
+    iD = 0
+    D = Array(UInt,nP)
+    ## Main loop ##
+    iteration = 0
+    # Continue while undiscarded pairs are available and maxinterations
+    # are not exceeded.
+    while iD < binomial(iG, 2) && iteration <= maxiterations
+        iteration += 1
+    end
+    # Return current states of G and D
+    return G[1:iG], D[1:iD]
 end
 
 function demo_alg()
