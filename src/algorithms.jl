@@ -79,25 +79,30 @@ function buchberger(F::Array{Multinomial,1}; increment=1000, maxiterations=1000,
     # Continue while undiscarded pairs are available and maxinterations
     # are not exceeded.
     while iD < binomial(iG, 2) && iteration <= maxiterations
-        # Choose a pair of multinomials in G
-        pair = (P[iP], P[iP+1]) # indices
+        # Choose an undiscarded pair of multinomials in G
+        pair,iP = pair!(P, iP)
+        while findfirst(D[1:iD], hash(pair)) > 0
+            pair,iP = pair!(P, iP)
+        end
         f1 = G[pair[1]]
         f2 = G[pair[2]]
         # Compute their S-polynomial
         S = S_poly(f1,f2)
         # Reduce S by G
-        
         # bookkeeping
         iteration += 1
-        iP += 2
-        if iP > nP
-            P = randperm(nP)
-            iP = 1
-        end
-
     end
     # Return current states of G and D
     return G[1:iG], D[1:iD]
+end
+
+function pair!(P::Array{Int,1},iP::Int))
+    if iP > length(P)
+        P = randperm(length(P))
+        iP = 1
+    end
+    pair = (P[iP],P[iP+1]), iP+1
+    return pair, iP
 end
 
 function demo_alg()
