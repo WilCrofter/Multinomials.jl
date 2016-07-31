@@ -32,8 +32,29 @@ Reduce A by B. Assumes divisibility of A[end] by B[end]
 """
 function reduce(A::Multinomial, B::Multinomial)
     A - (A[end]/B[end])*B
-end    
+end
 
+""" function reduce(A::Multinomial, G::Array{Multinomial,1})
+
+Reduce A by putative Groebner basis, G
+"""
+function reduce(A::Multinomial, G::Array{Multinomial,1})
+    h = deepcopy(A)
+    for g in G
+        if divides(g[end], h[end])
+            h = reduce(h, g)
+        end
+    end
+    return h
+end
+
+""" function iszero(A::Multinomial)
+
+Is multinomial A zero?
+"""
+function iszero(A::Multinomial)
+    length(A)==0 || (length(A)==1 && isapprox(A[1].coefficient, 0))
+end
 
 """
 function buchberger(F::Array{Multinomial,1})
