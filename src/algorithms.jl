@@ -96,7 +96,7 @@ function buchberger(F::Array{Multinomial,1}; increment=1000, maxiterations=1000,
     return G[1:iG], D[1:iD]
 end
 
-function pair!(P::Array{Int,1},iP::Int))
+function pair!(P::Array{Int,1},iP::Int)
     if iP > length(P)
         P = randperm(length(P))
         iP = 1
