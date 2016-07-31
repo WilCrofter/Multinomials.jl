@@ -110,11 +110,27 @@ function buchberger(F::Array{Multinomial,1}; increment=1000, maxiterations=1000,
         # Compute their S-polynomial
         S = S_poly(f1,f2)
         # Reduce S by G
+        h = reduce(S, G[1:iG])
+        if iszero(h)
+            # add S to G
+            iG += 1
+            if iG > length(G)
+                G = vcat(G,Array(Monomial, increment))
+            end
+            G[iG] = S
+        else
+            # reject pair
+            iD += 1
+            if iD > length(D)
+                D = vact(D, Array(UInt, increment))
+            end
+            D[iD] = hash(pair)
+        end
         # bookkeeping
         iteration += 1
     end
     # Return current states of G and D
-    return G[1:iG], D[1:iD]
+    return G, iG, D, iD
 end
 
 function pair!(P::Array{Int,1},iP::Int)
