@@ -67,8 +67,8 @@ Start with G = F .
 For any pair of polynomials f1 , f2 in G:
   Compute the S✁polynomial of f1, f2
   and reduce it to a reduced form h w.r.t. G.
-  If h is not 0, consider the next pair.
-  If h ✑ 0, add h to G and iterate.
+  If h = 0, consider the next pair.
+  If h is not 0, add h to G and iterate.
 
 Note that G never shrinks. In the worst case it can become intractably large. Moreover, the final G may contain many redundant multinomials. Neither of these problems aare faced here.
 """
@@ -112,19 +112,19 @@ function buchberger(F::Array{Multinomial,1}; increment=1000, maxiterations=1000,
         # Reduce S by G
         h = reduce(S, G[1:iG])
         if iszero(h)
-            # add S to G
-            iG += 1
-            if iG > length(G)
-                G = vcat(G,Array(Monomial, increment))
-            end
-            G[iG] = S
-        else
             # reject pair
             iD += 1
             if iD > length(D)
                 D = vact(D, Array(UInt, increment))
             end
             D[iD] = hash(pair)
+        else
+            # add h to G
+            iG += 1
+            if iG > length(G)
+                G = vcat(G,Array(Monomial, increment))
+            end
+            G[iG] = h
         end
         # bookkeeping
         iteration += 1
