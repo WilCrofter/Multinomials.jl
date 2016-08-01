@@ -72,8 +72,13 @@ For any pair of polynomials f1 , f2 in G:
 
 Note that G never shrinks. In the worst case it can become intractably large. Moreover, the final G may contain many redundant multinomials. Neither of these problems aare faced here.
 """
-function buchberger(F::Array{Multinomial,1}; increment=1000, maxiterations=1000,
-                    D = nothing)
+function buchberger(F::Array{Multinomial,1};
+                    increment::Int=1000,
+                    maxiterations::Int=1000,
+                    # for re-entry:
+                    D::Array{UInt,1} = Array(UInt,0),
+                    iD::Int = length(D),
+                    iG::Int = length(F))
     ## Initialization ##
     # Expandable storage for Groebner basis
     nG = max(length(F), increment)
@@ -86,7 +91,7 @@ function buchberger(F::Array{Multinomial,1}; increment=1000, maxiterations=1000,
     P = randperm(nP)
     iP = 1
     # Expandable storage for (hashes of) discarded pairs
-    if D == nothing
+    if length(D) == 0
         nD = max(binomia(length(F),2), increment)
         iD = 0
         D = Array(UInt,nP)
