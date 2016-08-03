@@ -116,22 +116,20 @@ function buchberger(F::Array{Multinomial,1};
         S = S_poly(f1,f2)
         # Reduce S by G
         h = reduce(S, G[1:iG])
-        if iszero(h)
-            # reject pair
-            iD += 1
-            if iD > length(D)
-                D = vact(D, Array(UInt, increment))
-            end
-            D[iD] = hash(pair)
-        else
-            # add h to G
+        if !iszero(h)
             iG += 1
             if iG > length(G)
                 G = vcat(G,Array(Monomial, increment))
             end
             G[iG] = h
         end
-        # bookkeeping
+        # discard current pair
+        iD += 1
+        if iD > length(D)
+            D = vact(D, Array(UInt, increment))
+        end
+        D[iD] = hash(pair)
+        # increment interation
         iteration += 1
     end
     # Return current states of G and D
