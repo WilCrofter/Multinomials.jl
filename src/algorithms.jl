@@ -87,14 +87,13 @@ function buchberger(F::Array{Multinomial,1};
     # Initialize G = F
     for i in 1:iG G[i] = deepcopy(F[i]) end
     # Random permutation for choosing pairs
-    nP = binomial(iG,2)
-    P = randperm(nP)
+    P = randperm(iG)
     iP = 1
     # Expandable storage for (hashes of) discarded pairs
     if length(D) == 0
-        nD = max(binomia(length(F),2), increment)
+        nD = max(binomial(length(F),2), increment)
         iD = 0
-        D = Array(UInt,nP)
+        D = Array(UInt,nD)
     else
         iD = length(D)+1
         D = vcat(D, Array(UInt, increment))
@@ -136,13 +135,21 @@ function buchberger(F::Array{Multinomial,1};
     return G, iG, D, iD
 end
 
+
+#= TODO: replace pair selection, currently an infinite loop, with an iterator like the following which enumerates pairs in 1:n before involving 1:(n+1)
+=#
+
+function nxtpair(i::Int, j::Int)
+    i < j-1 ? (i+1,j) : (1, j+1)
+end
+
 function pair!(P::Array{Int,1},iP::Int)
     if iP > length(P)
         P = randperm(length(P))
         iP = 1
     end
-    pair = (P[iP],P[iP+1]), iP+1
-    return pair, iP
+    pair = P[iP] < P[iP+1]? (P[iP],P[iP+1]) : (P[iP+1], P[iP])
+    return pair, iP+2
 end
 
 function demo_alg()
@@ -153,6 +160,12 @@ function demo_alg()
     @show B = 2 + 5* x^[1,3,2]
     println()
     @show S_poly(A,B)
+    F = Array(Multinomial,2)
+    F[1] = A; F[2] = B
+    println()
+    @show F
+    println()
+    @show G, iG, D, iD = buchberger(F, maxiterations=1)
 end
 
 
