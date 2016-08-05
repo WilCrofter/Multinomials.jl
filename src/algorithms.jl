@@ -76,9 +76,8 @@ function buchberger(F::Array{Multinomial,1};
                     increment::Int=1000,
                     maxiterations::Int=1000,
                     # for re-entry:
-                    D::Array{UInt,1} = Array(UInt,0),
-                    iD::Int = length(D),
-                    iG::Int = length(F))
+                    p1::Int=1,
+                    p2::Int=2)
     ## Initialization ##
     # Expandable storage for Groebner basis
     nG = max(length(F), increment)
@@ -86,31 +85,13 @@ function buchberger(F::Array{Multinomial,1};
     G = Array(Multinomial, nG)
     # Initialize G = F
     for i in 1:iG G[i] = deepcopy(F[i]) end
-    # Random permutation for choosing pairs
-    P = randperm(iG)
-    iP = 1
-    # Expandable storage for (hashes of) discarded pairs
-    if length(D) == 0
-        nD = max(binomial(length(F),2), increment)
-        iD = 0
-        D = Array(UInt,nD)
-    else
-        iD = length(D)+1
-        D = vcat(D, Array(UInt, increment))
-        nD = length(D)
-    end
     ## Main loop ##
-    iteration = 0
-    # Continue while undiscarded pairs are available and maxinterations
+    iteration = 1
+    # Continue while new pairs are available and max iterations
     # are not exceeded.
-    while iD < binomial(iG, 2) && iteration <= maxiterations
-        # Choose an undiscarded pair of multinomials in G
-        pair,iP = pair!(P, iP)
-        while findfirst(D[1:iD], hash(pair)) > 0
-            pair,iP = pair!(P, iP)
-        end
-        f1 = G[pair[1]]
-        f2 = G[pair[2]]
+    while p2 <= length(G) && iteration <= maxiterations
+        f1 = G[p1]
+        f2 = G[p2]
         # Compute their S-polynomial
         S = S_poly(f1,f2)
         # Reduce S by G
@@ -122,26 +103,17 @@ function buchberger(F::Array{Multinomial,1};
             end
             G[iG] = h
         end
-        # discard current pair
-        iD += 1
-        if iD > length(D)
-            D = vact(D, Array(UInt, increment))
-        end
-        D[iD] = hash(pair)
-        # increment interation
+        # bookkeeping
         iteration += 1
+        # next pair: note p2 increments more slowly than p1
+        # so that all pairs p1 < p2 <= k are covered before
+        # pairs p1 < p2 = k+1 are reached.
+        p1, p2 = p1+1 < p2 ? (p1+1,p2) : (1, p2+1)
     end
-    # Return current states of G and D
-    return G, iG, D, iD
+    # Return G, p1, p2
+    return G, iG, p1, p2
 end
 
-
-#= TODO: replace pair selection, currently an infinite loop, with an iterator like the following which enumerates pairs in 1:n before involving 1:(n+1)
-=#
-
-function nxtpair(i::Int, j::Int)
-    i < j-1 ? (i+1,j) : (1, j+1)
-end
 
 function pair!(P::Array{Int,1},iP::Int)
     if iP > length(P)
@@ -165,7 +137,10 @@ function demo_alg()
     println()
     @show F
     println()
-    @show G, iG, D, iD = buchberger(F, maxiterations=1)
+    G, iG, p1, p2 = buchberger(F, maxiterations=10)
+    @show iG, p1, p2
+    println()
+    @show G[iG]
 end
 
 
