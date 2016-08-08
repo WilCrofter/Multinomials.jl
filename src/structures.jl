@@ -38,18 +38,26 @@ type Monomial
     
 end
 
+typealias Multinomial Array{Monomial,1}
+
 function repr(x::Monomial)
     ex = x.exponent
     c = x.coefficient
     "$c*x^$ex"
 end
 
+function repr(A::Multinomial)
+    str = ""
+    for a in A
+        str = string(str, " + ",repr(a))
+    end
+    str              
+end
+
 function ltlex(a::Monomial, b::Monomial)
     b.indeterminate == a.indeterminate || error("Monomials $a and $b have different indeterminates.")
     return lexcmp(b.exponent,a.exponent) == 1
 end
-
-typealias Multinomial Array{Monomial,1}
 
 """ collect_terms(a)
 

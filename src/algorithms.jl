@@ -89,7 +89,7 @@ function buchberger(F::Array{Multinomial,1};
     iteration = 1
     # Continue while new pairs are available and max iterations
     # are not exceeded.
-    while p2 <= length(G) && iteration <= maxiterations
+    while p2 <= iG && iteration <= maxiterations
         f1 = G[p1]
         f2 = G[p2]
         # Compute their S-polynomial
@@ -142,5 +142,36 @@ function demo_alg()
     println()
     @show G[iG]
 end
+
+function demo_bb()
+    @show x = Indeterminate(2)
+    println()
+    @show A = x^[2,2] + x^[1,1]
+    println()
+    @show B = x^[0,4] - x^[0,2]
+    println()
+    F = Array(Multinomial,2)
+    F[1] = A; F[2] = B
+    println()
+    @show F
+    println()
+    G, iG, p1, p2 = buchberger(F, maxiterations=50)
+    @show iG, p1, p2
+    println()
+    for i in 1:iG @show G[i] end
+end
+
+function bug1()
+    x=Indeterminate(2)
+    @show -x^[0,2]
+    println()
+    @show x^[0,4]-x^[0,2]
+    println()
+    @show -(x^[0,4],x^[0,2])
+    nothing
+end
+    
+    
+    
 
 
