@@ -114,16 +114,6 @@ function buchberger(F::Array{Multinomial,1};
     return G, iG, p1, p2
 end
 
-
-function pair!(P::Array{Int,1},iP::Int)
-    if iP > length(P)
-        P = randperm(length(P))
-        iP = 1
-    end
-    pair = P[iP] < P[iP+1]? (P[iP],P[iP+1]) : (P[iP+1], P[iP])
-    return pair, iP+2
-end
-
 function demo_alg()
     @show x = Indeterminate(3)
     println()
@@ -141,6 +131,7 @@ function demo_alg()
     @show iG, p1, p2
     println()
     @show G[iG]
+    nothing
 end
 
 function demo_bb()
@@ -159,6 +150,7 @@ function demo_bb()
     @show iG, p1, p2
     println()
     for i in 1:iG @show G[i] end
+    nothing
 end
 
 function bug1()
