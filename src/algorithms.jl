@@ -40,9 +40,14 @@ Reduce A by putative Groebner basis, G
 """
 function reduce(A::Multinomial, G::Array{Multinomial,1})
     h = deepcopy(A)
-    for g in G
+    i = 1
+    while i <= length(G)
+        g = G[i]
         if divides(g[end], h[end])
             h = reduce(h, g)
+            i = 1
+        else
+            i += 1
         end
     end
     return h
@@ -137,15 +142,12 @@ end
 function demo_bb()
     @show x = Indeterminate(2)
     println()
-    @show A = x^[2,2] + x^[1,1]
-    println()
-    @show B = x^[0,4] - x^[0,2]
-    println()
-    F = Array(Multinomial,2)
-    F[1] = A; F[2] = B
-    println()
-    @show F
-    println()
+    F = Array(Multinomial,2)   
+    F[1] = x^[1,1] - x^[1,0]
+    F[2] = x^[2,0] - x^[0,1]
+    @show F[1]
+    @show F[2]
+    println("\nRunning buchberger on F. Result:\n")
     G, iG, p1, p2 = buchberger(F, maxiterations=50)
     @show iG, p1, p2
     println()
@@ -162,6 +164,8 @@ function bug1()
     @show -(x^[0,4],x^[0,2])
     nothing
 end
+
+    
     
     
     
