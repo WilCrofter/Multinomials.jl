@@ -18,7 +18,7 @@ function divides(a::Monomial, b::Monomial)
 end
 
 """
-Quotient of b and a. Assumes divisability
+Quotient of b and a. Assumes divisibility
 """
 function /(b::Monomial, a::Monomial)
     Monomial(b.indeterminate,
