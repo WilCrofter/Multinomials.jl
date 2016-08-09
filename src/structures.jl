@@ -151,8 +151,8 @@ end
 +(A::Multinomial, B::Monomial) = A + [B]
 +(A::Monomial, B::Monomial)    = [A] + [B]
 -(A::Monomial, B::Multinomial) = [A] - B
--(A::Multinomial, B::Monomial) = A + [B]
--(A::Monomial, B::Monomial)    = [A] + [B]
+-(A::Multinomial, B::Monomial) = A - [B]
+-(A::Monomial, B::Monomial)    = [A] - [B]
 *(A::Monomial, B::Multinomial) = [A]*B
 *(A::Multinomial, B::Monomial) = A*[B]
 *(A::Monomial, B::Monomial)    = [A]*[B]
