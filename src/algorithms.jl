@@ -133,7 +133,7 @@ function normalize!(G::Array{Multinomial,1})
     nothing
 end
 
-function mark_redundancies(G::Array{Multinomial,1})
+function mark_nonredundant(G::Array{Multinomial,1})
     marks = trues(length(G))
     for i in eachindex(G)
         m = G[i][end]
@@ -146,6 +146,19 @@ function mark_redundancies(G::Array{Multinomial,1})
         end
     end
     return marks
+end
+
+function reduce_Groebner(G::Array{Multinomial,1})
+    Gtmp = deepcopy(G)
+    normalize!(Gtmp)
+    Gtmp = Gtmp[mark_nonredundant(Gtmp)]
+    idx = trues(length(Gtmp))
+    for i in eachindex(Gtmp)
+        idx[i] = false
+        Gtmp[i] = reduce(Gtmp[i], Gtmp[idx])
+        idx[i] = true
+    end
+    return Gtmp
 end
 
 function demo_alg()
