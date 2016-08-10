@@ -119,6 +119,35 @@ function buchberger(F::Array{Multinomial,1};
     return G, iG, p1, p2
 end
 
+""" normalize!(G!::Array{Multinomial,1})
+
+Convert all leading coefficients in  Groebner basis, G, to 1 modififying G in place. 
+"""
+function normalize!(G::Array{Multinomial,1})
+    for g in G
+        d = g[end].coefficient
+        for m in g
+            m.coefficient /= d
+        end
+    end
+    nothing
+end
+
+function mark_redundancies(G::Array{Multinomial,1})
+    marks = trues(length(G))
+    for i in eachindex(G)
+        m = G[i][end]
+        for j in eachindex(G)
+            if j==i continue end
+            if divides(G[j][end], g)
+                marks[i] = false
+                break
+            end
+        end
+    end
+    return marks
+end
+
 function demo_alg()
     @show x = Indeterminate(3)
     println()
