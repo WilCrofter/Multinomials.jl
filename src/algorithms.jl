@@ -139,7 +139,7 @@ function mark_nonredundant(G::Array{Multinomial,1})
         m = G[i][end]
         for j in eachindex(G)
             if j==i continue end
-            if divides(G[j][end], g)
+            if divides(G[j][end], m)
                 marks[i] = false
                 break
             end
@@ -153,11 +153,6 @@ function reduce_Groebner(G::Array{Multinomial,1})
     normalize!(Gtmp)
     Gtmp = Gtmp[mark_nonredundant(Gtmp)]
     idx = trues(length(Gtmp))
-    for i in eachindex(Gtmp)
-        idx[i] = false
-        Gtmp[i] = reduce(Gtmp[i], Gtmp[idx])
-        idx[i] = true
-    end
     return Gtmp
 end
 
@@ -194,6 +189,9 @@ function demo_bb()
     @show iG, p1, p2
     println()
     for i in 1:iG @show G[i] end
+    println("\nReducing the Groebner basis found above.\n")
+    Gred = reduce_Groebner(G[1:iG])
+    for i in eachindex(Gred) @show Gred[i] end
     nothing
 end
 
