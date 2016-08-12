@@ -195,21 +195,22 @@ function demo_bb()
     nothing
 end
 
-function demo_bb2()
+function demo_reduce()
     @show x = Indeterminate(2)
     println()
-    F = Array(Multinomial,2)   
-    F[1] = x^[3,0] - 2*x^[1,1]
-    F[2] = x^[2,1] - 2*x^[0,2] + x^[1,0]
-    @show F[1]
-    @show F[2]
-    println("\nRunning buchberger on F. Result:\n")
-    G, iG, p1, p2 = buchberger(F, maxiterations=2)
-    @show iG, p1, p2
-    println()
-    for i in 1:iG @show G[i] end
-    println("\nReducing the Groebner basis found above.\n")
-    Gred = reduce_Groebner(G[1:iG])
+    G = Array(Multinomial,5)   
+    G[1] = x^[3,0] - 2*x^[1,1]
+    G[2] = x^[2,1] - 2*x^[0,2] + x^[1,0]
+    G[3] = [x^[2,0]]
+    G[4] = [x^[1,1]]
+    G[5] = x^[0,2] - (1//2)*x^[1,0]
+    @show G[1]
+    @show G[2]
+    @show G[3]
+    @show G[4]
+    @show G[5]
+    println("\nReducing the Groebner basis shown above.\n")
+    Gred = reduce_Groebner(G[1:5])
     for i in eachindex(Gred) @show Gred[i] end
     nothing
 end
