@@ -65,7 +65,7 @@ Collect terms Monomial array in place, modifying a, and return the length of the
 
 """
 function collect_terms!(A::Multinomial)
-    if length(A) <= 1 return A end
+    if length(A) <= 1 return length(A) end
     sort!(A,lt=ltlex)
     mt = 0
     current = 1
@@ -126,6 +126,10 @@ function *(A::Multinomial, B::Multinomial)
         end
     end
     n = collect_terms!(C)
+    if !(typeof(n) == Int)
+        @show C
+        @show n
+    end
     return C[1:n]
 end
 
