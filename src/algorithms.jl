@@ -1,4 +1,4 @@
-import Base./
+import Base./, Base.%
 
 
 function S_poly(A::Multinomial, B::Multinomial)
@@ -26,11 +26,11 @@ function /(b::Monomial, a::Monomial)
              b.coefficient/a.coefficient)
 end
 
-""" function reduce(A::Multinomial, G::Array{Multinomial,1})
+""" function %(A::Multinomial, G::Array{Multinomial,1})
 
-Reduce A by putative Groebner basis, G
+Divide A by the array of multinomials, G returning the remainder.
 """
-function reduce(A::Multinomial, G::Array{Multinomial,1})
+function %(A::Multinomial, G::Array{Multinomial,1})
     h = deepcopy(A)
     i = 1
     while i <= length(G)
@@ -100,8 +100,8 @@ function buchberger(F::Array{Multinomial,1};
         f2 = G[p2]
         # Compute their S-polynomial
         S = S_poly(f1,f2)
-        # Reduce S by G
-        h = reduce(S, G[1:iG])
+        # Find S mod G
+        h = S%G[1:iG]
         if !iszero(h)
             iG += 1
             if iG > length(G)
@@ -156,10 +156,36 @@ function reduce_Groebner(G::Array{Multinomial,1})
     idx = trues(length(Gtmp))
     for i in eachindex(Gtmp)
         idx[i] = false
-        Gtmp[i] = reduce(Gtmp[i], Gtmp[idx])
+        Gtmp[i] = Gtmp[i]%Gtmp[idx]
         idx[i] = true
     end
     return Gtmp
+end
+
+function demo_mod()
+    x = Indeterminate(2)
+    P = 1 + x^[1,2]
+    println("Example 1\n")
+    @show P
+    println()
+    G = Array(Multinomial,2)
+    G[1]= 1 + x^[1,1]
+    G[2]= 1 + x^[0,1]
+    @show G[1]
+    @show G[2]
+    println()
+    @show P%G
+    println("\nExample 2\n")
+    P = x^[1,2] + x^[2,1] + x^[0,2]
+    @show P
+    println()
+    G[1] = x^[1,1]-1
+    G[2] = x^[0,2]-1
+    @show G[1]
+    @show G[2]
+    println()
+    @show P%G
+    nothing
 end
 
 function demo_alg()
