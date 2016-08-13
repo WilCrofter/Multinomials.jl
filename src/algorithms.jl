@@ -26,14 +26,6 @@ function /(b::Monomial, a::Monomial)
              b.coefficient/a.coefficient)
 end
 
-""" function reduce(A::Multinomial, B::Multinomial)
-
-Reduce A by B. Assumes divisibility of A[end] by B[end]
-"""
-function reduce(A::Multinomial, B::Multinomial)
-    A - (A[end]/B[end])*B
-end
-
 """ function reduce(A::Multinomial, G::Array{Multinomial,1})
 
 Reduce A by putative Groebner basis, G
@@ -43,8 +35,17 @@ function reduce(A::Multinomial, G::Array{Multinomial,1})
     i = 1
     while i <= length(G)
         g = G[i]
-        if divides(g[end], h[end])
-            h = reduce(h, g)
+        # find first j, if any, such that g[end] divides h[end-j]
+        j = 0
+        while j < length(h)
+            if divides(g[end], h[end-j])
+                break
+            else
+                j += 1
+            end
+        end
+        if j < length(h)
+            h = h - (h[end-j]/g[end])*g
             i = 1
         else
             i += 1
@@ -153,6 +154,11 @@ function reduce_Groebner(G::Array{Multinomial,1})
     normalize!(Gtmp)
     Gtmp = Gtmp[mark_nonredundant(Gtmp)]
     idx = trues(length(Gtmp))
+    for i in eachindex(Gtmp)
+        idx[i] = false
+        Gtmp[i] = reduce(Gtmp[i], Gtmp[idx])
+        idx[i] = true
+    end
     return Gtmp
 end
 
